@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="pokemon.js"></script>
+    <meta charset="utf-8">
+    <link rel="icon" href="" />
+    <title>Pok&eacute;Due</title>
+</head>
+<body>
+    <div id="HidedNameContent" class="HidedNameContent"></div>
+    <div class="InputContainer">
+        <input style = "display:block;" class="LetterInput" id="LetterInput" onkeydown="if(event.keyCode == 13){getLetter();}" id=LetterInput maxlength="1">
+        <input style = "display:block;" id="ValidateButton" class="Button" type="button" value="Valider" onclick="getLetter();">
+        <input style = "display:none;" class="NewGameButton" id="NewGameButton" type="button" value="Rejouer" onclick="StartNewGame();">
+    </div>
+    <div class="HPContainer">
+        <div class="HealthPointContainer" id="HealthPointContainer"></div>
+    </div>
+    <div id="UsedLetterContainer" class="UsedLetterContainer"></div>
+    <script>
+        String.prototype.replaceAt = function(index, character){
+            return this.substr(0, index) + character + this.substr(index+character.length);
+        }
+
+        ValideLetter = "abcdefghijklmnopqrstuvwxyz"
+        NameContent = document.getElementById("HidedNameContent");
+        LetterInput = document.getElementById("LetterInput");
+        ValidateButton = document.getElementById("ValidateButton");
+        HealthPointContainer = document.getElementById("HealthPointContainer");
+        UsedLetterContainer = document.getElementById("UsedLetterContainer");
+        NewGameButton = document.getElementById("NewGameButton");
+
+        function StartNewGame(){
+
+            PokemonNameAlea = PokemonName[Math.round(Math.random() * (PokemonName.length - 1) + 1)];
+            HidedName = hideName(PokemonNameAlea);
+            letter = "";
+            UsedLetter = [];
+            HealthPoint = 10;
+            HealthPointContainer.innerHTML = HealthPoint;
+            NewGameButton.style.display = "none";
+            LetterInput.style.display = "block";
+            ValidateButton.style.display = "block";
+            DisplayHidedName();
+            DisplayUsedLetter();
+        }
+
+        function hideName(Name){
+
+            var HidedName = "";
+
+            for(var i = 0; i<Name.length; i++){
+
+                HidedName += "_";
+            }
+
+            return HidedName;
+        }
+        
+        function getLetter(){
+
+            var FindedLetter = 0;
+            letter = LetterInput.value.toLowerCase();
+            LetterInput.value = "";
+
+            if(letter == ""){
+                
+                return 4;
+            
+            }else if(!ValideLetter.includes(letter)){
+
+                alert("\"" + letter + "\" n'est pas une lettre valide !");
+                return 4;
+            }
+        
+            for(var i = 0; i<PokemonNameAlea.length; i++){
+
+                if(letter == PokemonNameAlea[i].toLowerCase() && letter != HidedName[i]){
+
+                    HidedName = HidedName.replaceAt(i,letter);
+                    FindedLetter++;
+                                        
+                    if(HidedName == PokemonNameAlea.toLowerCase()){
+
+                        DisplayHidedName();                       
+                        //alert("Bravo ! Le Pokémon qu'il fallait trouver était bien " + String(PokemonNameAlea) + " !")
+                        DisplayNewGameButton();
+                    }
+
+                }else if(letter == HidedName[i] || UsedLetter.indexOf(letter) >= 0){
+
+                    alert("Vous avez déjà indiqué la lettre " + String(letter) + " !");
+                    return 0;
+                }
+            }
+
+            if(FindedLetter == 0){
+
+                HealthPoint--;
+                HealthPointContainer.innerHTML = HealthPoint;
+                UsedLetter.push(letter);
+                DisplayUsedLetter()
+
+                if(HealthPoint == 0){
+
+                    alert("Vous avez perdu !\nLe pokémon qu'il fallait trouver était " + String(PokemonNameAlea) + " !")
+                    DisplayMissedLetter();
+                    DisplayNewGameButton();
+                    return 0;
+                    
+                }
+            }
+
+            DisplayHidedName()
+        }
+
+        function DisplayHidedName(){
+
+            NameContent.innerHTML = ''
+
+            for(var i = 0;i<HidedName.length;i++){
+
+                if(HidedName[i] != '_'){
+
+                    NameContent.innerHTML += "<div class='FoudedLetter'>" + String(HidedName[i].toUpperCase()) + "</div>";
+                
+                }else{
+
+                    NameContent.innerHTML += "<div class='UnfoudedLetter'></div>";
+                }
+            }
+        }
+        
+        function DisplayNewGameButton(){
+
+            NewGameButton.style.display = "block";
+            LetterInput.style.display = "none";
+            ValidateButton.style.display = "none";
+        }
+
+        function DisplayMissedLetter(){
+
+            NameContent.innerHTML = ''
+
+            for(var i = 0;i<HidedName.length;i++){
+
+                if(HidedName[i] != '_'){
+
+                    NameContent.innerHTML += "<div class='FoudedLetter'>" + String(HidedName[i].toUpperCase()) + "</div>";
+
+                }else{
+
+                    NameContent.innerHTML += "<div class='MissedLetter'>" + String(PokemonNameAlea[i].toUpperCase()) + "</div>";
+                }   
+            }
+        }
+        
+        function DisplayUsedLetter(){
+
+            UsedLetterContainer.innerHTML = ""
+
+            for(var i = 0;i<UsedLetter.length;i++){
+
+                UsedLetterContainer.innerHTML += "<div class='UsedLetter'>" + String(UsedLetter[i].toUpperCase()) + "</div>";
+            }
+        }
+
+        StartNewGame();
+
+    </script>
+</body>
